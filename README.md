@@ -2,4 +2,4 @@
 
 VimJolts the Vim Package Management
 
-<http://jolt.appspot.com/>
+<http://vimjolts.appspot.com/>
