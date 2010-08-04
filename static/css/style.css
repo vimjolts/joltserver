@@ -5,7 +5,7 @@ html>/**/body {
 	font-family: arial, helvetica, sans-serif;
 }
 #logo {
-	text-align: center;
+	width: 30%;
 }
 div.quote {
 	background-color: #eeeeee;
