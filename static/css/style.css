@@ -1,5 +1,8 @@
+html>/**/body {
+	background: transparent;
+}
 #content {
-	font-family: sans-serif;
+	font-family: arial, helvetica, sans-serif;
 }
 #logo {
 	text-align: center;
@@ -13,4 +16,30 @@ blockquote pre {
 	color: white;
 	background: black;
 	text-align: left;
+}
+#packages {
+	margin-left: 2em;
+}
+label {
+	font-weight: bold;
+	color: darkblue;
+}
+a {
+	font-size: 10pt;
+	color: #333399
+}
+input, textarea, select {
+	background-color: #e6e6e6 !important;
+	border: 1px solid #b5b5b5;
+	padding: 2px;
+}
+input:focus, select:focus, textarea:focus {
+    background-color: #ddffff !important;
+}
+.package-info {
+	margin-left: 2em;
+}
+.package-info textarea {
+	width: 600px;
+	height: 100px;
 }

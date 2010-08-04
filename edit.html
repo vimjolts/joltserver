@@ -1,0 +1,28 @@
+<html>
+<head>
+	<title>VimJolts :: get the jolts on your vim</title>
+	<link media="all" rel="stylesheet" href="/static/css/style.css" type="text/css" />
+	<script type="text/javascript" src="/static/javascript/jquery-latest.js"></script>
+<script type="text/javascript">
+</script>
+</head>
+<body>
+	<div id="content">
+		<a href="/"><img src="/static/image/vimjolts-logo.png" id="logo" border="0" /></a>
+		<h2>Get the Jolts on Your Vim</h2>
+		<div class="package-info">
+			<label for="name">Name:</label><br />
+			<input type="text" id="name" value="{{ name }}" ><br />
+			<label for="version">Version:</label><br />
+			<input type="text" id="version" value="{{ version }}" ><br />
+			<label for="version">Description:</label><br />
+			<textarea id="description">{{ description|escape }}</textarea><br />
+			<label for="installer_unix">Installer(UNIX):</label><br />
+			<textarea id="installer_unix">{{ installer_unix|escape }}</textarea><br />
+			<label for="installer_win32">Installer(Win32):</label><br />
+			<textarea id="installer_win32">{{ installer_win32|escape }}</textarea><br />
+		</div>
+		<p align="center">Provided by <a href="http://github.com/vimjolts/vimjolts">VimJolts Developer Team</a>.</p>
+	</div>
+</body>
+</html>

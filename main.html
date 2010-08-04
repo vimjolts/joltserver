@@ -1,16 +1,25 @@
 <html>
 <head>
 	<title>VimJolts :: get the jolts on your vim</title>
-	<link media="all" rel="stylesheet" href="static/css/style.css" type="text/css" />
-	<script type="text/javascript" src="static/javascript/jquery-latest.js"></script>
+	<link media="all" rel="stylesheet" href="/static/css/style.css" type="text/css" />
+	<script type="text/javascript" src="/static/javascript/jquery-latest.js"></script>
 <script type="text/javascript">
 $(function() {
+	$('#packages tbody tr').remove()
+	$.getJSON('/api/list', function(data) {
+		var tr = $('<tr/>').appendTo('#packages tbody')
+		$.each(data, function(n, i) {
+			tr.append($('<td/>').append($('<a/>').attr('href', '/edit/' + i.id).text(i.name)))
+			  .append($('<td/>').text(i.version).css('text-align', 'center'))
+			  .append($('<td/>').text(i.description))
+		})
+	});
 });
 </script>
 </head>
 <body>
 	<div id="content">
-		<img src="static/image/vimjolts-logo.png" id="logo" />
+		<a href="/"><img src="/static/image/vimjolts-logo.png" id="logo" border="0" /></a>
 		<h2>Get the Jolts on Your Vim</h2>
 		<div class="quote">
 			<p>
@@ -33,6 +42,21 @@ $(function() {
 			<p>What's matter? Thanks.</p>
 
 			<p><em>Currently, VimJolts is in under construction...</em></p>
+
+			<table id="packages" border="1">
+				<caption>Recent Packages</caption>
+				<colgroup width="200px" />
+				<colgroup width="100px" />
+				<colgroup width="400px" />
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Version</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
 		</div>
 		<p align="center">Provided by <a href="http://github.com/vimjolts/vimjolts">VimJolts Developer Team</a>.</p>
 	</div>
