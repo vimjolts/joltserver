@@ -1,0 +1,16 @@
+#content {
+	font-family: sans-serif;
+}
+#logo {
+	text-align: center;
+}
+div.quote {
+	background-color: #eeeeee;
+}
+blockquote pre {
+	width: 100%;
+	padding: 1em;
+	color: white;
+	background: black;
+	text-align: left;
+}
