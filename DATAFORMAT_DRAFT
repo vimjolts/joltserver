@@ -1,0 +1,55 @@
+Data Model
+
+*** THIS IS DRAFT SUGGESTION ****
+
+* id
+  [number]
+  unique key. (UK1)
+
+* name
+  [string]
+  can't include space letter. (UK2)
+
+* version
+  [string]
+  can't include space letter.
+  name and version make the script unique. (UK2)
+
+* description
+  [string]
+  description of the script.
+
+* keywords
+  [string]
+  comma separated strings.
+
+* requires
+  [string]
+  comma separated strings that is aligning ID.
+  if the ID is leading with '*', it have to be treated as 'optinal'.
+  ----------------------------
+  id1,id2,*id3
+  ----------------------------
+
+* install
+  A bash shell script for installing.
+  this script is running on temporary directory.
+  environment $TARGET_FILE and $VIMHOME are defined before running.
+  ----------------------------
+  unzip  $TARGET_FILE
+  mkdir $VIMHOME/plugin/.
+  cp plugin/foo.vim $VIMHOME/plugin/.
+  ----------------------------
+
+* install_win32
+  A batch file for installing.
+  environment %TARGET_FILE% and %VIMHOME% are defined before running.
+  ----------------------------
+  unzip  $TARGET_FILE
+  mkdir $VIMHOME/plugin/.
+  copy plugin/foo.vim $VIMHOME/plugin/.
+  ----------------------------
+
+* disable
+  [boolean]
+  If this version become deprecated, it should be set true. 
