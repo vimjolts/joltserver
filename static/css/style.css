@@ -9,6 +9,7 @@ html>/**/body {
 }
 div.quote {
 	background-color: #eeeeee;
+	padding: 1em;
 }
 blockquote pre {
 	width: 100%;
@@ -38,6 +39,9 @@ input:focus, select:focus, textarea:focus {
 }
 .package-info {
 	margin-left: 2em;
+}
+.package-info input[type=text] {
+	width: 600px;
 }
 .package-info textarea {
 	width: 600px;

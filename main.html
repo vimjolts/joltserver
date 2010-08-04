@@ -16,6 +16,7 @@ $(function() {
 	});
 });
 </script>
+	<script src="http://widgets.twimg.com/j/2/widget.js"></script>
 </head>
 <body>
 	<div id="content">
@@ -57,6 +58,42 @@ $(function() {
 				</thead>
 				<tbody></tbody>
 			</table>
+		</div>
+		<br />
+		<div class="quote">
+<script>
+new TWTR.Widget({
+  version: 2,
+  type: 'search',
+  search: '#vimjolts',
+  interval: 6000,
+  title: 'VimJolts',
+  subject: 'Get The Jolts',
+  width: 'auto',
+  height: 300,
+  theme: {
+    shell: {
+      background: '#8ec1da',
+      color: '#ffffff'
+    },
+    tweets: {
+      background: '#ffffff',
+      color: '#444444',
+      links: '#1985b5'
+    }
+  },
+  features: {
+    scrollbar: false,
+    loop: true,
+    live: true,
+    hashtags: true,
+    timestamp: true,
+    avatars: true,
+    toptweets: true,
+    behavior: 'default'
+  }
+}).render().start();
+</script>
 		</div>
 		<p align="center">Provided by <a href="http://github.com/vimjolts/vimjolts">VimJolts Developer Team</a>.</p>
 	</div>
