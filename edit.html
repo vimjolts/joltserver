@@ -8,21 +8,23 @@
 </head>
 <body>
 	<div id="content">
+		<p align="right">{{ greeting }}</p><br />
 		<a href="/"><img src="/static/image/vimjolts-logo.png" id="logo" border="0" /></a>
 		<h2>Get the Jolts on Your Vim</h2>
 		<div class="package-info">
+			<input type="hidden" id="id" value="{{ pkg.id }}" ><br />
 			<label for="name">Name:</label><br />
-			<input type="text" id="name" value="{{ name }}" ><br />
+			<input type="text" id="name" value="{{ pkg.name }}" ><br />
 			<label for="version">Version:</label><br />
-			<input type="text" id="version" value="{{ version }}" ><br />
+			<input type="text" id="version" value="{{ pkg.version }}" ><br />
 			<label for="url">URL:</label><br />
-			<input type="text" id="url" value="{{ url }}" ><br />
+			<input type="text" id="url" value="{{ pkg.url }}" ><br />
 			<label for="version">Description:</label><br />
-			<textarea id="description">{{ description|escape }}</textarea><br />
+			<textarea id="description">{{ pkg.description|escape }}</textarea><br />
 			<label for="installer_unix">Installer(UNIX):</label><br />
-			<textarea id="installer_unix">{{ installer_unix|escape }}</textarea><br />
+			<textarea id="installer_unix">{{ pkg.installer_unix|escape }}</textarea><br />
 			<label for="installer_win32">Installer(Win32):</label><br />
-			<textarea id="installer_win32">{{ installer_win32|escape }}</textarea><br />
+			<textarea id="installer_win32">{{ pkg.installer_win32|escape }}</textarea><br />
 		</div>
 		<p align="center">Provided by <a href="http://github.com/vimjolts/vimjolts">VimJolts Developer Team</a>.</p>
 	</div>

@@ -7,11 +7,11 @@
 $(function() {
 	$('#packages tbody tr').remove()
 	$.getJSON('/api/list', function(data) {
-		var tr = $('<tr/>').appendTo('#packages tbody')
 		$.each(data, function(n, i) {
-			tr.append($('<td/>').append($('<a/>').attr('href', '/edit/' + i.id).text(i.name)))
-			  .append($('<td/>').text(i.version).css('text-align', 'center'))
-			  .append($('<td/>').text(i.description))
+			$('<tr/>').appendTo('#packages tbody')
+				.append($('<td/>').append($('<a/>').attr('href', '/edit/' + i.id).text(i.name)))
+				.append($('<td/>').text(i.version).css('text-align', 'center'))
+				.append($('<td/>').text(i.description))
 		})
 	});
 });
