@@ -26,7 +26,7 @@ class TestPkg(webapp.RequestHandler):
         version = '0.43',
         url = 'http://github.com/mattn/zencoding-vim/raw/master/zencoding.vim',
         description = 'zencoding for vim',
-        packer = users.get_current_user(),
+        packer = str(users.get_current_user()),
         requires = '',
         installer_unix = '''
 mkdir -p $(VIMHOME)/plugin
