@@ -15,9 +15,34 @@ class Package(db.Model):
   description = db.StringProperty(multiline=True)
   packer = db.UserProperty(required=True)
   requires = db.StringProperty(multiline=True)
-  installer_unix = db.StringProperty(multiline=True)
-  installer_win32 = db.StringProperty(multiline=True)
+  installer = db.StringProperty()
   timestamp = db.DateProperty(required=True, auto_now=True)
+
+installer = {
+
+"unix": {
+'10': '''wget $(TARGETURL) -O $(TARGETFILE)
+mkdir -p $(VIMHOME)/plugin
+cp $(TARGETFILE) $(VIMHOME)/plugin/$(TARGETFILE)
+''',
+"20": '''wget $(TARGETURL) -O $(TARGETFILE)
+unzip $(TARGETFILE) -d $(VIMHOME)
+''',
+"30": '''svn export $(TARGETURL) -O $(TARGETFILE)
+unzip $(TARGETFILE) -d $(VIMHOME)
+''',
+},
+
+"win32": {
+"10": '''wget %TARGETURL% -O %TARGETFILE%
+mkdir %VIMHOME%/plugin
+copy %TARGETFILE% "%VIMHOME%/plugin/%TARGETFILE%"
+''',
+"20": '''wget %TARGETURL% -O "%TARGETFILE%"
+unzip "%TARGETFILE%" -d "%VIMHOME%"
+''',
+},
+}
 
 class TestPkg(webapp.RequestHandler):
   def get(self):
@@ -32,16 +57,7 @@ class TestPkg(webapp.RequestHandler):
         description = 'zencoding for vim',
         packer = users.get_current_user(),
         requires = '',
-        installer_unix = '''
-wget $(TARGETURL) -O $(TARGETFILE)
-mkdir -p $(VIMHOME)/plugin
-cp $(TARGETFILE) $(VIMHOME)/plugin/zencoding.vim
-''',
-        installer_win32 = '''
-wget %TARGETURL% -O "%TARGETFILE%"
-mkdir %VIMHOME%/plugin
-copy %TARGETFILE% %VIMHOME%/plugin/zencoding.vim
-''',
+        installer = "10",
     ).put()
 
     Package(
@@ -51,14 +67,7 @@ copy %TARGETFILE% %VIMHOME%/plugin/zencoding.vim
         description = 'Run commands quickly.',
         packer = users.get_current_user(),
         requires = '',
-        installer_unix = '''
-wget $(TARGETURL) -O $(TARGETFILE)
-unzip $(TARGETFILE) -d $(VIMHOME)
-''',
-        installer_win32 = '''
-wget %TARGETURL% -O "%TARGETFILE%"
-unzip "%TARGETFILE%" -d "%VIMHOME%"
-''',
+        installer = "20",
     ).put()
 
     self.response.out.write("ok")
@@ -67,8 +76,11 @@ class EntryPkg(webapp.RequestHandler):
   def get(self, id):
     entry = Package.get(id)
     pkg = {}
-    for key in ['name', 'version', 'url', 'description', 'packer', 'requires', 'installer_unix', 'installer_win32']:
+    for key in ['name', 'version', 'url', 'description', 'packer', 'requires', 'installer']:
       pkg[key] = str(getattr(entry, key))
+    pkg["id"] = str(entry.key())
+    pkg['installer_unix'] = installer['unix'][getattr(entry, "installer")]
+    pkg['installer_win32'] = installer['win32'][getattr(entry, "installer")]
     self.response.out.write(simplejson.dumps(pkg))
 
   def post(self, id):
@@ -90,12 +102,13 @@ class ListPkg(webapp.RequestHandler):
 
 class EditPage(webapp.RequestHandler):
   def get(self, id):
-    #entry = db.GqlQuery('select * from Package where id = :id', id=id).get()
     entry = Package.get(id)
     pkg = {}
-    for key in ['name', 'version', 'url', 'description', 'packer', 'requires', 'installer_unix', 'installer_win32']:
+    for key in ['name', 'version', 'url', 'description', 'packer', 'requires', 'installer']:
       pkg[key] = str(getattr(entry, key))
     pkg["id"] = str(entry.key())
+    pkg['installer_unix'] = installer['unix'][getattr(entry, "installer")]
+    pkg['installer_win32'] = installer['win32'][getattr(entry, "installer")]
 
     user = users.get_current_user()
     if user:
@@ -106,7 +119,12 @@ class EditPage(webapp.RequestHandler):
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'main.html'), {}))
+    user = users.get_current_user()
+    if user:
+      greeting = ("Welcome, %s! (<a href=\"%s\">sign out</a>)" % (user.nickname(), users.create_logout_url("")))
+    else:
+      greeting = ("<a href=\"%s\">Sign in or register</a>" % users.create_login_url(""))
+    self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'main.html'), { "greeting": greeting }))
 
 def main():
   application = webapp.WSGIApplication([

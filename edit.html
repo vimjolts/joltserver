@@ -19,12 +19,22 @@
 			<input type="text" id="version" value="{{ pkg.version }}" ><br />
 			<label for="url">URL:</label><br />
 			<input type="text" id="url" value="{{ pkg.url }}" ><br />
-			<label for="version">Description:</label><br />
+			<label for="description">Description:</label><br />
 			<textarea id="description">{{ pkg.description|escape }}</textarea><br />
-			<label for="installer_unix">Installer(UNIX):</label><br />
-			<textarea id="installer_unix">{{ pkg.installer_unix|escape }}</textarea><br />
-			<label for="installer_win32">Installer(Win32):</label><br />
-			<textarea id="installer_win32">{{ pkg.installer_win32|escape }}</textarea><br />
+			<label for="installer">Installer:</label><br />
+			<select id="installer">
+				<optgroup label="Single File">
+				<option value="10"{% ifequal pkg.installer "10" %} selected="selected"{% endifequal %}>Get plain text file via HTTP. and Copy the file to plugin directory</option>
+				</optgroup>
+				<optgroup label="Zipped File">
+				<option value="20"{% ifequal pkg.installer "20" %} selected="selected"{% endifequal %}>Get zipped file via HTTP. and unzip it to plugin directory</option>
+				<option value="21"{% ifequal pkg.installer "21" %} selected="selected"{% endifequal %}>Get zipped file via HTTP. and unzip it to plugin directory</option>
+				</optgroup>
+			</select><br />
+			<label>UNIX:</label><br />
+			<div class="installer">{{ pkg.installer_unix|linebreaksbr }}</div>
+			<label>Win32:</label><br />
+			<div class="installer">{{ pkg.installer_win32|linebreaksbr }}</div>
 		</div>
 		<p align="center">Provided by <a href="http://github.com/vimjolts/vimjolts">VimJolts Developer Team</a>.</p>
 	</div>

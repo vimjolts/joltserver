@@ -40,10 +40,16 @@ input:focus, select:focus, textarea:focus {
 .package-info {
 	margin-left: 2em;
 }
-.package-info input[type=text] {
+.package-info input[type=text], .package-info select {
 	width: 600px;
 }
 .package-info textarea {
 	width: 600px;
 	height: 100px;
+}
+.package-info div.installer {
+	width: 600px;
+	height: 100px;
+	border: 1px solid #b5b5b5;
+	padding: 2px;
 }
