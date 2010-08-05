@@ -29,6 +29,7 @@ a {
 	font-size: 10pt;
 	color: #333399
 }
+/*
 input, textarea, select {
 	background-color: #e6e6e6 !important;
 	border: 1px solid #b5b5b5;
@@ -37,6 +38,7 @@ input, textarea, select {
 input:focus, select:focus, textarea:focus {
     background-color: #ddffff !important;
 }
+*/
 .package-info {
 	margin-left: 2em;
 }

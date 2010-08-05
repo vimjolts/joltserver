@@ -5,14 +5,24 @@
 	<script type="text/javascript" src="/static/javascript/jquery-latest.js"></script>
 <script type="text/javascript">
 $(function() {
-	$('#packages tbody tr').remove()
-	$.getJSON('/api/list', function(data) {
-		$.each(data, function(n, i) {
-			$('<tr/>').appendTo('#packages tbody')
-				.append($('<td/>').append($('<a/>').attr('href', '/edit/' + i.id).text(i.name)))
-				.append($('<td/>').text(i.version).css('text-align', 'center'))
-				.append($('<td/>').text(i.description))
-		})
+	$('#search-form').submit(function() {
+		$('#search').attr('disabled', 'disabled');
+		$('#word').attr('disabled', 'disabled');
+		$('#search-box').append($('<img/>').attr('src', '/static/image/ajax-loader.gif'))
+		$('#packages tbody tr').remove()
+
+		$.getJSON('/api/search', {"word": $('#word').val() }, function(data) {
+			$.each(data, function(n, i) {
+				$('<tr/>').appendTo('#packages tbody')
+					.append($('<td/>').append($('<a/>').attr('href', '/edit/' + i.id).text(i.name)))
+					.append($('<td/>').text(i.version).css('text-align', 'center'))
+					.append($('<td/>').text(i.description))
+			})
+			$('#search').removeAttr('disabled');
+			$('#word').removeAttr('disabled');
+			$('#search-box img').remove();
+		});
+		return false;
 	});
 });
 </script>
@@ -24,27 +34,9 @@ $(function() {
 		<a href="/"><img src="/static/image/vimjolts-logo.png" id="logo" border="0" /></a>
 		<h2>Get the Jolts on Your Vim</h2>
 		<div class="quote">
-			<p>
-			Vim is an advanced text editor that seeks to provide the power of the de-facto Unix editor 'Vi', with a more complete feature set. It's useful whether you're already using vi or using a different editor.
-			And Vim is possible to extend the functional of editing with plugin called 'vimscript'.
-			</p>
-			<p>However, it is not provided to unify/concise way to install thems.</p>
-			<p><b>But that become Legend...</b></p>
-			<p>VimJols provide the <b>easy</b> way to install 'vimscript'.</p>
-
-			<blockquote class="code">
-				search:<br />
-				<pre># jolt search html</pre>
-			</blockquote>
-			<blockquote class="code">
-				install:<br />
-				<pre># jolt install zencoding.vim</pre>
-			</blockquote>
-
-			<p>What's matter? Thanks.</p>
-
-			<p><em>Currently, VimJolts is in under construction...</em></p>
-
+			<form id="search-form">
+				<span id="search-box"><input type="text" id="word" value=""/><input type="submit" id="search" value="Search" /></span>
+			</form>
 			<table id="packages" border="1">
 				<caption>Recent Packages</caption>
 				<colgroup width="200px" />
@@ -59,9 +51,6 @@ $(function() {
 				</thead>
 				<tbody></tbody>
 			</table>
-
-			<br />
-			<a href="search">Search Plugin</a>
 		</div>
 		<br />
 		<div class="quote">

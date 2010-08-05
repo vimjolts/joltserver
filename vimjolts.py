@@ -91,10 +91,24 @@ class EntryPkg(webapp.RequestHandler):
       self.response.set_status(401, "")
       return
 
+class SearchPkg(webapp.RequestHandler):
+  def get(self):
+    pkgs = []
+    word = self.request.get('word').decode("utf-8", "")
+    for entry in db.GqlQuery('select * from Package order by timestamp desc'):
+      if entry.name.find(word) != -1 or entry.description.find(word) != -1:
+        pkgs.append({
+          "id" : str(entry.key()),
+          "name" : entry.name,
+          "version" : entry.version,
+          "description" : entry.description,
+    })
+    self.response.out.write(simplejson.dumps(pkgs))
+
 class ListPkg(webapp.RequestHandler):
   def get(self):
     pkgs = []
-    for entry in db.GqlQuery('select * from Package order by timestamp desc'):
+    for entry in db.GqlQuery('select * from Package order by timestamp desc limit 10'):
       pkgs.append({
         "id" : str(entry.key()),
         "name" : entry.name,
@@ -120,6 +134,15 @@ class EditPage(webapp.RequestHandler):
       greeting = ("<a href=\"%s\">Sign in or register</a>" % users.create_login_url(""))
     self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'edit.html'), { "pkg": pkg, "greeting": greeting }))
 
+class SearchPage(webapp.RequestHandler):
+  def get(self):
+    user = users.get_current_user()
+    if user:
+      greeting = ("Welcome, %s! (<a href=\"%s\">sign out</a>)" % (user.nickname(), users.create_logout_url("")))
+    else:
+      greeting = ("<a href=\"%s\">Sign in or register</a>" % users.create_login_url(""))
+    self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'search.html'), { "greeting": greeting }))
+
 class MainPage(webapp.RequestHandler):
   def get(self):
     user = users.get_current_user()
@@ -133,7 +156,9 @@ def main():
   application = webapp.WSGIApplication([
     ('/',               MainPage),
     ('/edit/(.*)',      EditPage),
+    ('/search',         SearchPage),
     ('/api/list',       ListPkg),
+    ('/api/search',     SearchPkg),
     ('/api/test',       TestPkg),
     #('/api/add',       AddPkg),
     #('/api/update',    UpdatePkg),
