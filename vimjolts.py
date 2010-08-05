@@ -21,6 +21,7 @@ class Package(db.Model):
 installer = {
 
 "unix": {
+'00': '',
 '10': '''wget $(TARGETURL) -O $(TARGETFILE)
 mkdir -p $(VIMHOME)/plugin
 cp $(TARGETFILE) $(VIMHOME)/plugin/$(TARGETFILE)
@@ -28,18 +29,20 @@ cp $(TARGETFILE) $(VIMHOME)/plugin/$(TARGETFILE)
 "20": '''wget $(TARGETURL) -O $(TARGETFILE)
 unzip $(TARGETFILE) -d $(VIMHOME)
 ''',
-"30": '''svn export $(TARGETURL) -O $(TARGETFILE)
-unzip $(TARGETFILE) -d $(VIMHOME)
+"30": '''svn export $(TARGETURL) $(VIMHOME)
 ''',
 },
 
 "win32": {
+'00': '',
 "10": '''wget %TARGETURL% -O %TARGETFILE%
-mkdir %VIMHOME%/plugin
+mkdir "%VIMHOME%/plugin"
 copy %TARGETFILE% "%VIMHOME%/plugin/%TARGETFILE%"
 ''',
 "20": '''wget %TARGETURL% -O "%TARGETFILE%"
 unzip "%TARGETFILE%" -d "%VIMHOME%"
+''',
+"30": '''svn export $(TARGETURL) $(VIMHOME)
 ''',
 },
 }

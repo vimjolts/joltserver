@@ -30,6 +30,9 @@
 				<option value="20"{% ifequal pkg.installer "20" %} selected="selected"{% endifequal %}>Get zipped file via HTTP. and unzip it to plugin directory</option>
 				<option value="21"{% ifequal pkg.installer "21" %} selected="selected"{% endifequal %}>Get zipped file via HTTP. and unzip it to plugin directory</option>
 				</optgroup>
+				<optgroup label="Subversion">
+				<option value="30"{% ifequal pkg.installer "30" %} selected="selected"{% endifequal %}>Export files from remote subversion repository to plugin directory</option>
+				</optgroup>
 			</select><br />
 			<label>UNIX:</label><br />
 			<div class="installer">{{ pkg.installer_unix|linebreaksbr }}</div>
