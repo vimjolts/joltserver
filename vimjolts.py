@@ -116,6 +116,13 @@ class SearchPkg(webapp.RequestHandler):
     })
     self.response.out.write(simplejson.dumps(pkgs))
 
+class CountPkg(webapp.RequestHandler):
+  def get(self):
+    num = 0
+    for entry in db.GqlQuery('select * from Package order by timestamp desc limit %d' % count):
+      num += 1
+    self.response.out.write(str(num))
+
 class ListPkg(webapp.RequestHandler):
   def get(self):
     count = self.request.get('count')
@@ -181,6 +188,7 @@ def main():
     ('/search',         SearchPage),
     ('/api/list',       ListPkg),
     ('/api/search',     SearchPkg),
+    ('/api/count',       CountPkg),
     ('/api/test',       TestPkg),
     #('/api/add',       AddPkg),
     #('/api/update',    UpdatePkg),
