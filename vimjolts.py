@@ -118,8 +118,16 @@ class SearchPkg(webapp.RequestHandler):
 
 class ListPkg(webapp.RequestHandler):
   def get(self):
+    count = self.request.get('count')
+    try:
+      count = int(count)
+    except:
+      count = 9999
+    if count <= 0:
+      self.error(500)
+      return
     pkgs = []
-    for entry in db.GqlQuery('select * from Package order by timestamp desc limit 10'):
+    for entry in db.GqlQuery('select * from Package order by timestamp desc limit %d' % count):
       pkgs.append({
         "id" : str(entry.key()),
         "name" : entry.name,

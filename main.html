@@ -6,7 +6,7 @@
 <script type="text/javascript">
 $(function() {
 	$('#packages tbody tr').remove()
-	$.getJSON('/api/list', function(data) {
+	$.getJSON('/api/list', { count: 10 }, function(data) {
 		$.each(data, function(n, i) {
 			$('<tr/>').appendTo('#packages tbody')
 				.append($('<td/>').append($('<a/>').attr('href', '/edit/' + i.id).text(i.name)))
