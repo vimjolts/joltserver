@@ -75,9 +75,20 @@ class TestPkg(webapp.RequestHandler):
 
     self.response.out.write("ok")
 
+class ByNamePkg(webapp.RequestHandler):
+  def get(self, name):
+    entry = Package.gql('where name = :1', name).get()
+    if entry:
+      self.redirect("/api/entry/%s" % (entry.key()))
+    else:
+      self.error(404)
+
 class EntryPkg(webapp.RequestHandler):
   def get(self, id):
     entry = Package.get(id)
+    if not entry:
+      self.error(404)
+      return
     pkg = {}
     for key in ['name', 'version', 'url', 'description', 'packer', 'requires', 'installer']:
       pkg[key] = str(getattr(entry, key))
@@ -120,6 +131,9 @@ class ListPkg(webapp.RequestHandler):
 class EditPage(webapp.RequestHandler):
   def get(self, id):
     entry = Package.get(id)
+    if not entry:
+      self.error(404)
+      return
     pkg = {}
     for key in ['name', 'version', 'url', 'description', 'packer', 'requires', 'installer']:
       pkg[key] = str(getattr(entry, key))
@@ -163,9 +177,12 @@ def main():
     #('/api/add',       AddPkg),
     #('/api/update',    UpdatePkg),
     #('/api/delete',    DeletePkg),
+    ('/api/entry/byname/(.*)', ByNamePkg),
     ('/api/entry/(.*)', EntryPkg),
   ], debug=False)
   wsgiref.handlers.CGIHandler().run(application)
 
 if __name__ == '__main__':
   main()
+
+# vim:set et ts=2 sw=2:
