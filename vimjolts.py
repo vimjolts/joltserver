@@ -118,10 +118,7 @@ class SearchPkg(webapp.RequestHandler):
 
 class CountPkg(webapp.RequestHandler):
   def get(self):
-    num = 0
-    for entry in db.GqlQuery('select * from Package order by timestamp desc limit %d' % count):
-      num += 1
-    self.response.out.write(str(num))
+    self.response.out.write(str(Package.all().count()))
 
 class ListPkg(webapp.RequestHandler):
   def get(self):
