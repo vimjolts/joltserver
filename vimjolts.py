@@ -93,8 +93,10 @@ class EntryPkg(webapp.RequestHandler):
     for key in ['name', 'version', 'url', 'description', 'packer', 'requires', 'installer']:
       pkg[key] = str(getattr(entry, key))
     pkg["id"] = str(entry.key())
-    pkg['installer_unix'] = installer['unix'][getattr(entry, "installer")]
-    pkg['installer_win32'] = installer['win32'][getattr(entry, "installer")]
+    if installer['unix'].has_key(getattr(entry, "installer")):
+      pkg['installer_unix'] = installer['unix'][getattr(entry, "installer")]
+    if installer['win32'].has_key(getattr(entry, "installer")):
+      pkg['installer_win32'] = installer['win32'][getattr(entry, "installer")]
     self.response.out.write(simplejson.dumps(pkg))
 
   def post(self, id):
@@ -150,8 +152,10 @@ class EditPage(webapp.RequestHandler):
     for key in ['name', 'version', 'url', 'description', 'packer', 'requires', 'installer']:
       pkg[key] = str(getattr(entry, key))
     pkg["id"] = str(entry.key())
-    pkg['installer_unix'] = installer['unix'][getattr(entry, "installer")]
-    pkg['installer_win32'] = installer['win32'][getattr(entry, "installer")]
+    if installer['unix'].has_key(getattr(entry, "installer")):
+      pkg['installer_unix'] = installer['unix'][getattr(entry, "installer")]
+    if installer['win32'].has_key(getattr(entry, "installer")):
+      pkg['installer_win32'] = installer['win32'][getattr(entry, "installer")]
 
     user = users.get_current_user()
     if user:
