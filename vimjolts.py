@@ -161,7 +161,7 @@ class EditPage(webapp.RequestHandler):
     if user:
       greeting = ("Welcome, %s! (<a href=\"%s\">sign out</a>)" % (user.nickname(), users.create_logout_url("")))
     else:
-      greeting = ("<a href=\"%s\">Sign in or register</a>" % users.create_login_url(""))
+      greeting = ("<a href=\"%s\">Sign in or sign up</a>" % users.create_login_url(""))
     self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'edit.html'), { "pkg": pkg, "greeting": greeting }))
 
 class SearchPage(webapp.RequestHandler):
@@ -170,7 +170,7 @@ class SearchPage(webapp.RequestHandler):
     if user:
       greeting = ("Welcome, %s! (<a href=\"%s\">sign out</a>)" % (user.nickname(), users.create_logout_url("")))
     else:
-      greeting = ("<a href=\"%s\">Sign in or register</a>" % users.create_login_url(""))
+      greeting = ("<a href=\"%s\">Sign in or sign up</a>" % users.create_login_url(""))
     self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'search.html'), { "greeting": greeting }))
 
 class MainPage(webapp.RequestHandler):
@@ -179,7 +179,7 @@ class MainPage(webapp.RequestHandler):
     if user:
       greeting = ("Welcome, %s! (<a href=\"%s\">sign out</a>)" % (user.nickname(), users.create_logout_url("")))
     else:
-      greeting = ("<a href=\"%s\">Sign in or register</a>" % users.create_login_url(""))
+      greeting = ("<a href=\"%s\">Sign in or sign up</a>" % users.create_login_url(""))
     self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'main.html'), { "greeting": greeting }))
 
 def main():
