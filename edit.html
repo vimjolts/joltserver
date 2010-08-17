@@ -22,18 +22,28 @@
 			<input type="text" id="url" name="url" value="{{ pkg.url }}" ><br />
 			<label for="description">Description:</label><br />
 			<textarea id="description" name="description">{{ pkg.description|escape }}</textarea><br />
+			<label for="extractor">Extractor:</label><br />
+			<select id="extractor" name="extractor">
+				<option value="">download file</option>
+				<option value="git">git clone</option>
+				<option value="svn">svn export</option>
+			</select><br />
 			<label for="installer">Installer:</label><br />
 			<select id="installer" name="installer">
-				<option value="">package is archived runtime-path of zip/tarball/vimball</option>
+				<option value="">overwrite all files to runtime-path</option>
 				<option value="plugin"{% ifequal pkg.installer "plugin" %} selected="selected"{% endifequal %}>copy a file as plugin</option>
 				<option value="ftplugin"{% ifequal pkg.installer "ftplugin" %} selected="selected"{% endifequal %}>copy a file as ftplugin</option>
 				<option value="syntax"{% ifequal pkg.installer "syntax" %} selected="selected"{% endifequal %}>copy a file as syntax</option>
+				<option value="colors"{% ifequal pkg.installer "colors" %} selected="selected"{% endifequal %}>copy a file as colors</option>
+				<option value="doc"{% ifequal pkg.installer "doc" %} selected="selected"{% endifequal %}>copy a file as doc</option>
+				<option value="indent"{% ifequal pkg.installer "indent" %} selected="selected"{% endifequal %}>copy a file as indent</option>
+				<option value="dict"{% ifequal pkg.installer "dict" %} selected="selected"{% endifequal %}>copy a file as dict</option>
 				<option value="custom"{% ifequal pkg.installer "custom" %} selected="selected"{% endifequal %}>custom script</option>
 			</select><br />
 			<label>UNIX:</label><br />
-			<textarea id="installer_unix" name="installer_unix" class="installer">{{ pkg.installer_unix|linebreaksbr }}</textarea><br />
+			<textarea id="installer_unix" name="installer_unix" class="installer">{{ pkg.installer_unix|escape }}</textarea><br />
 			<label>Win32:</label><br />
-			<textarea id="installer_win32" name="installer_win32" class="installer">{{ pkg.installer_win32|linebreaksbr }}</textarea><br />
+			<textarea id="installer_win32" name="installer_win32" class="installer">{{ pkg.installer_win32|escape }}</textarea><br />
 		</div>
 		<input type="submit" value="Update" />
 		</form>

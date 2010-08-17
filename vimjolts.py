@@ -20,9 +20,10 @@ class Package(db.Model):
   description = db.StringProperty(multiline=True)
   packer = db.UserProperty(required=True)
   requires = db.StringProperty(multiline=True)
+  extractor = db.StringProperty()
   installer = db.StringProperty()
-  installer_unix = db.StringProperty()
-  installer_win32 = db.StringProperty()
+  installer_unix = db.StringProperty(multiline=True)
+  installer_win32 = db.StringProperty(multiline=True)
   timestamp = db.DateProperty(required=True, auto_now=True)
 
 def get_all_packages(fields):
@@ -41,7 +42,11 @@ def get_all_packages(fields):
         if field == 'id':
           pkg[field] = str(entry.key())
         else:
-          pkg[field] = getattr(entry, field).encode("utf-8", "").decode("utf-8")
+          val = getattr(entry, field)
+          if not val:
+            pkg[field] = ""
+          else:
+            pkg[field] = val.encode("utf-8", "").decode("utf-8")
       pkgs.append(pkg)
       count += 1
       if maxsize != -1 and len(pkgs) > maxsize:
@@ -68,7 +73,7 @@ class EntryPkg(webapp.RequestHandler):
       self.error(404)
       return
     pkg = {}
-    for key in ['name', 'version', 'url', 'description', 'author', 'requires', 'installer', 'installer_unix', 'installer_win32']:
+    for key in ['name', 'version', 'url', 'description', 'author', 'requires', 'extractor', 'installer', 'installer_unix', 'installer_win32']:
       pkg[key] = getattr(entry, key).encode("utf-8", "").decode("utf-8")
     pkg["packer"] = str(entry.packer)
     pkg["id"] = str(entry.key())
@@ -98,6 +103,12 @@ class SearchPkg(webapp.RequestHandler):
 class CountPkg(webapp.RequestHandler):
   def get(self):
     self.response.out.write(str(len(get_all_packages(["id"]))))
+
+class TruncatePkg(webapp.RequestHandler):
+  def get(self):
+    for pkg in Package.all():
+      pkg.delete()
+    self.response.out.write("ok")
 
 class FixupPkg(webapp.RequestHandler):
   def get(self):
@@ -131,8 +142,12 @@ class EditPage(webapp.RequestHandler):
       self.error(404)
       return
     pkg = {}
-    for key in ['name', 'version', 'url', 'description', 'author', 'requires', 'installer', 'installer_unix', 'installer_win32']:
-      pkg[key] = getattr(entry, key).encode("utf-8", "").decode("utf-8")
+    for field in ['name', 'version', 'url', 'description', 'author', 'requires', 'extractor', 'installer', 'installer_unix', 'installer_win32']:
+      val = getattr(entry, field)
+      if not val:
+        pkg[field] = ""
+      else:
+        pkg[field] = val.encode("utf-8", "").decode("utf-8")
     pkg["packer"] = str(entry.packer)
     pkg["id"] = str(entry.key())
 
@@ -156,6 +171,7 @@ class EditPage(webapp.RequestHandler):
       entry.version = self.request.get("version"),
       entry.description = self.request.get("description"),
       entry.url = self.request.get("url"),
+      entry.extractor = self.request.get("extractor"),
       entry.author = self.request.get("author"),
       entry.packer = users.get_current_user(),
       entry.requires = self.request.get("requires"),
@@ -168,6 +184,7 @@ class EditPage(webapp.RequestHandler):
         version=self.request.get("version"),
         description=self.request.get("description"),
         url=self.request.get("url"),
+        extractor=self.request.get("extractor"),
         author=self.request.get("author"),
         packer=users.get_current_user(),
         requires=self.request.get("requires"),
@@ -241,6 +258,7 @@ def main():
     ('/api/list',       ListPkg),
     ('/api/search',     SearchPkg),
     ('/api/count',      CountPkg),
+    #('/api/truncate',   TruncatePkg),
     #('/api/fixup',      FixupPkg),
     #('/api/add',       AddPkg),
     #('/api/update',    UpdatePkg),
