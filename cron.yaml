@@ -1,0 +1,4 @@
+cron:  
+- description: sync packages
+  url: /tasks/sync-packages  
+  schedule: every 30 minutes  

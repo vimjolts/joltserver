@@ -7,8 +7,8 @@ from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
 from google.appengine.ext.webapp import template
-import xmllib
-import elementtree.SimpleXMLTreeBuilder as xmlbuilder
+#import xmllib
+#import elementtree.SimpleXMLTreeBuilder as xmlbuilder
 import simplejson
 from BeautifulSoup import BeautifulSoup
 
@@ -109,10 +109,6 @@ class TruncatePkg(webapp.RequestHandler):
     for pkg in Package.all():
       pkg.delete()
     self.response.out.write("ok")
-
-class FixupPkg(webapp.RequestHandler):
-  def get(self):
-    print "foo"
 
 class ListPkg(webapp.RequestHandler):
   def get(self):
@@ -259,7 +255,6 @@ def main():
     ('/api/search',     SearchPkg),
     ('/api/count',      CountPkg),
     #('/api/truncate',   TruncatePkg),
-    #('/api/fixup',      FixupPkg),
     #('/api/add',       AddPkg),
     #('/api/update',    UpdatePkg),
     #('/api/delete',    DeletePkg),
