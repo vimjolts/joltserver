@@ -5,6 +5,7 @@ import wsgiref.handlers
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
+from google.appengine.api import memcache
 from google.appengine.ext.webapp import template
 import simplejson
 
@@ -17,6 +18,34 @@ class Package(db.Model):
   requires = db.StringProperty(multiline=True)
   installer = db.StringProperty()
   timestamp = db.DateProperty(required=True, auto_now=True)
+
+def get_all_packages(fields):
+  val = memcache.get("packages")
+  if val is not None:
+    return val
+  pkgs = []
+  offset = 0
+  while True:
+    exist = False
+    count = 0
+    for entry in db.GqlQuery('select * from Package order by timestamp desc offset %d' % offset):
+      exist = True
+      pkg = {}
+      for field in fields:
+        if field == 'id':
+          pkg[field] = str(entry.key())
+        else:
+          pkg[field] = getattr(entry, field).encode("utf-8", "").decode("utf-8")
+      pkgs.append(pkg)
+      count += 1
+      if maxsize != -1 and len(pkgs) > maxsize:
+        exist = False
+        break
+    if exist == False:
+      break
+    offset += count
+  memcache.set("packages", pkgs, 0)
+  return pkgs
 
 installer = {
 
@@ -46,34 +75,6 @@ unzip "%TARGETFILE%" -d "%VIMHOME%"
 ''',
 },
 }
-
-class TestPkg(webapp.RequestHandler):
-  def get(self):
-
-    for entry in Package.all():
-      entry.delete()
-
-    Package(
-        name = 'zencoding-vim',
-        version = '0.43',
-        url = 'http://github.com/mattn/zencoding-vim/raw/master/zencoding.vim',
-        description = 'zencoding for vim',
-        packer = users.get_current_user(),
-        requires = '',
-        installer = "10",
-    ).put()
-
-    Package(
-        name = 'vim-quickrun',
-        version = 'v0.4.1',
-        url = 'http://github.com/thinca/vim-quickrun/zipball/v0.4.1',
-        description = 'Run commands quickly.',
-        packer = users.get_current_user(),
-        requires = '',
-        installer = "20",
-    ).put()
-
-    self.response.out.write("ok")
 
 class ByNamePkg(webapp.RequestHandler):
   def get(self, name):
@@ -106,21 +107,13 @@ class EntryPkg(webapp.RequestHandler):
 
 class SearchPkg(webapp.RequestHandler):
   def get(self):
-    pkgs = []
-    word = self.request.get('word').decode("utf-8", "")
-    for entry in db.GqlQuery('select * from Package order by timestamp desc'):
-      if entry.name.find(word) != -1 or entry.description.find(word) != -1:
-        pkgs.append({
-          "id" : str(entry.key()),
-          "name" : entry.name,
-          "version" : entry.version,
-          "description" : entry.description,
-    })
+    word = self.request.get('word').decode("utf-8", "").lower()
+    pkgs = [x for x in get_all_packages(["id", "name", "version", "description"]) if x["name"].lower().find(word) != -1 or x["description"].lower().find(word) != -1]
     self.response.out.write(simplejson.dumps(pkgs))
 
 class CountPkg(webapp.RequestHandler):
   def get(self):
-    self.response.out.write(str(Package.all().count()))
+    self.response.out.write(str(len(get_all_packages(["id"]))))
 
 class ListPkg(webapp.RequestHandler):
   def get(self):
@@ -132,15 +125,7 @@ class ListPkg(webapp.RequestHandler):
     if count <= 0:
       self.error(500)
       return
-    pkgs = []
-    for entry in db.GqlQuery('select * from Package order by timestamp desc limit %d' % count):
-      pkgs.append({
-        "id" : str(entry.key()),
-        "name" : entry.name,
-        "version" : entry.version,
-        "description" : entry.description,
-    })
-    self.response.out.write(simplejson.dumps(pkgs))
+    self.response.out.write(simplejson.dumps(get_all_packages(["id", "name", "version", "description"])[:count]))
 
 class EditPage(webapp.RequestHandler):
   def get(self, id):
@@ -189,8 +174,7 @@ def main():
     ('/search',         SearchPage),
     ('/api/list',       ListPkg),
     ('/api/search',     SearchPkg),
-    ('/api/count',       CountPkg),
-    ('/api/test',       TestPkg),
+    ('/api/count',      CountPkg),
     #('/api/add',       AddPkg),
     #('/api/update',    UpdatePkg),
     #('/api/delete',    DeletePkg),
