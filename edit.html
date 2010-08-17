@@ -11,34 +11,32 @@
 		<p align="right">{{ greeting }}</p><br />
 		<a href="/"><img src="/static/image/vimjolts-logo.png" id="logo" border="0" /></a>
 		<h2>Get the Jolts on Your Vim</h2>
+		<form method="post" action="/edit/">
 		<div class="package-info">
-			<input type="hidden" id="id" value="{{ pkg.id }}" ><br />
+			<input type="hidden" id="id" name="id" value="{{ pkg.id }}" ><br />
 			<label for="name">Name:</label><br />
-			<input type="text" id="name" value="{{ pkg.name }}" ><br />
+			<input type="text" id="name" name="name" value="{{ pkg.name }}" ><br />
 			<label for="version">Version:</label><br />
-			<input type="text" id="version" value="{{ pkg.version }}" ><br />
+			<input type="text" id="version" name="version" value="{{ pkg.version }}" ><br />
 			<label for="url">URL:</label><br />
-			<input type="text" id="url" value="{{ pkg.url }}" ><br />
+			<input type="text" id="url" name="url" value="{{ pkg.url }}" ><br />
 			<label for="description">Description:</label><br />
-			<textarea id="description">{{ pkg.description|escape }}</textarea><br />
+			<textarea id="description" name="description">{{ pkg.description|escape }}</textarea><br />
 			<label for="installer">Installer:</label><br />
-			<select id="installer">
-				<optgroup label="Single File">
-				<option value="10"{% ifequal pkg.installer "10" %} selected="selected"{% endifequal %}>Get plain text file via HTTP. and Copy the file to plugin directory</option>
-				</optgroup>
-				<optgroup label="Zipped File">
-				<option value="20"{% ifequal pkg.installer "20" %} selected="selected"{% endifequal %}>Get zipped file via HTTP. and unzip it to plugin directory</option>
-				<option value="21"{% ifequal pkg.installer "21" %} selected="selected"{% endifequal %}>Get zipped file via HTTP. and unzip it to plugin directory</option>
-				</optgroup>
-				<optgroup label="Subversion">
-				<option value="30"{% ifequal pkg.installer "30" %} selected="selected"{% endifequal %}>Export files from remote subversion repository to plugin directory</option>
-				</optgroup>
+			<select id="installer" name="installer">
+				<option value="">package is archived runtime-path of zip/tarball/vimball</option>
+				<option value="plugin"{% ifequal pkg.installer "plugin" %} selected="selected"{% endifequal %}>copy a file as plugin</option>
+				<option value="ftplugin"{% ifequal pkg.installer "ftplugin" %} selected="selected"{% endifequal %}>copy a file as ftplugin</option>
+				<option value="syntax"{% ifequal pkg.installer "syntax" %} selected="selected"{% endifequal %}>copy a file as syntax</option>
+				<option value="custom"{% ifequal pkg.installer "custom" %} selected="selected"{% endifequal %}>custom script</option>
 			</select><br />
 			<label>UNIX:</label><br />
-			<div class="installer">{{ pkg.installer_unix|linebreaksbr }}</div>
+			<textarea id="installer_unix" name="installer_unix" class="installer">{{ pkg.installer_unix|linebreaksbr }}</textarea><br />
 			<label>Win32:</label><br />
-			<div class="installer">{{ pkg.installer_win32|linebreaksbr }}</div>
+			<textarea id="installer_win32" name="installer_win32" class="installer">{{ pkg.installer_win32|linebreaksbr }}</textarea><br />
 		</div>
+		<input type="submit" value="Update" />
+		</form>
 		<p align="center">Provided by <a href="http://github.com/vimjolts">VimJolts Developer Team</a>.</p>
 	</div>
 </body>

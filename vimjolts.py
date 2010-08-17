@@ -7,16 +7,22 @@ from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
 from google.appengine.ext.webapp import template
+import xmllib
+import elementtree.SimpleXMLTreeBuilder as xmlbuilder
 import simplejson
+from BeautifulSoup import BeautifulSoup
 
 class Package(db.Model):
   name = db.StringProperty(required=True)
   version = db.StringProperty(required=True)
+  author = db.StringProperty()
   url = db.StringProperty()
   description = db.StringProperty(multiline=True)
   packer = db.UserProperty(required=True)
   requires = db.StringProperty(multiline=True)
   installer = db.StringProperty()
+  installer_unix = db.StringProperty()
+  installer_win32 = db.StringProperty()
   timestamp = db.DateProperty(required=True, auto_now=True)
 
 def get_all_packages(fields):
@@ -47,35 +53,6 @@ def get_all_packages(fields):
   memcache.set("packages", pkgs, 0)
   return pkgs
 
-installer = {
-
-"unix": {
-'00': '',
-'10': '''wget $(TARGETURL) -O $(TARGETFILE)
-mkdir -p $(VIMHOME)/plugin
-cp $(TARGETFILE) $(VIMHOME)/plugin/$(TARGETFILE)
-''',
-"20": '''wget $(TARGETURL) -O $(TARGETFILE)
-unzip $(TARGETFILE) -d $(VIMHOME)
-''',
-"30": '''svn export $(TARGETURL) $(VIMHOME)
-''',
-},
-
-"win32": {
-'00': '',
-"10": '''wget %TARGETURL% -O %TARGETFILE%
-mkdir "%VIMHOME%/plugin"
-copy %TARGETFILE% "%VIMHOME%/plugin/%TARGETFILE%"
-''',
-"20": '''wget %TARGETURL% -O "%TARGETFILE%"
-unzip "%TARGETFILE%" -d "%VIMHOME%"
-''',
-"30": '''svn export $(TARGETURL) $(VIMHOME)
-''',
-},
-}
-
 class ByNamePkg(webapp.RequestHandler):
   def get(self, name):
     entry = Package.gql('where name = :1', name).get()
@@ -91,19 +68,26 @@ class EntryPkg(webapp.RequestHandler):
       self.error(404)
       return
     pkg = {}
-    for key in ['name', 'version', 'url', 'description', 'packer', 'requires', 'installer']:
-      pkg[key] = str(getattr(entry, key))
+    for key in ['name', 'version', 'url', 'description', 'author', 'requires', 'installer', 'installer_unix', 'installer_win32']:
+      pkg[key] = getattr(entry, key).encode("utf-8", "").decode("utf-8")
+    pkg["packer"] = str(entry.packer)
     pkg["id"] = str(entry.key())
-    if installer['unix'].has_key(getattr(entry, "installer")):
-      pkg['installer_unix'] = installer['unix'][getattr(entry, "installer")]
-    if installer['win32'].has_key(getattr(entry, "installer")):
-      pkg['installer_win32'] = installer['win32'][getattr(entry, "installer")]
     self.response.out.write(simplejson.dumps(pkg))
 
   def post(self, id):
     if not users.get_current_user():
       self.response.set_status(401, "")
       return
+    entry = Package.get(id)
+    if not entry:
+      self.error(404)
+      return
+    info = simplejson.loads(self.request.get('info').decode("utf-8", ""))
+    for key in keys(info):
+      if key != 'id':
+        setattr(entry, key, info[key])
+    entry.put()
+    self.redirect("/api/entry/%s" % (entry.key()))
 
 class SearchPkg(webapp.RequestHandler):
   def get(self):
@@ -114,6 +98,10 @@ class SearchPkg(webapp.RequestHandler):
 class CountPkg(webapp.RequestHandler):
   def get(self):
     self.response.out.write(str(len(get_all_packages(["id"]))))
+
+class FixupPkg(webapp.RequestHandler):
+  def get(self):
+    print "foo"
 
 class ListPkg(webapp.RequestHandler):
   def get(self):
@@ -127,6 +115,15 @@ class ListPkg(webapp.RequestHandler):
       return
     self.response.out.write(simplejson.dumps(get_all_packages(["id", "name", "version", "description"])[:count]))
 
+class NewPage(webapp.RequestHandler):
+  def get(self):
+    user = users.get_current_user()
+    if user:
+      greeting = ("Welcome, %s! (<a href=\"%s\">sign out</a>)" % (user.nickname(), users.create_logout_url("")))
+    else:
+      greeting = ("<a href=\"%s\">Sign in or sign up</a>" % users.create_login_url(""))
+    self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'edit.html'), { "pkg": {}, "greeting": greeting }))
+
 class EditPage(webapp.RequestHandler):
   def get(self, id):
     entry = Package.get(id)
@@ -134,13 +131,10 @@ class EditPage(webapp.RequestHandler):
       self.error(404)
       return
     pkg = {}
-    for key in ['name', 'version', 'url', 'description', 'packer', 'requires', 'installer']:
-      pkg[key] = str(getattr(entry, key))
+    for key in ['name', 'version', 'url', 'description', 'author', 'requires', 'installer', 'installer_unix', 'installer_win32']:
+      pkg[key] = getattr(entry, key).encode("utf-8", "").decode("utf-8")
+    pkg["packer"] = str(entry.packer)
     pkg["id"] = str(entry.key())
-    if installer['unix'].has_key(getattr(entry, "installer")):
-      pkg['installer_unix'] = installer['unix'][getattr(entry, "installer")]
-    if installer['win32'].has_key(getattr(entry, "installer")):
-      pkg['installer_win32'] = installer['win32'][getattr(entry, "installer")]
 
     user = users.get_current_user()
     if user:
@@ -148,6 +142,41 @@ class EditPage(webapp.RequestHandler):
     else:
       greeting = ("<a href=\"%s\">Sign in or sign up</a>" % users.create_login_url(""))
     self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'edit.html'), { "pkg": pkg, "greeting": greeting }))
+
+  def post(self, id):
+    if not users.get_current_user():
+      self.response.set_status(401, "")
+      return
+    if len(id) > 0:
+      entry = Package.get(id)
+      if not entry:
+        self.error(404)
+        return
+      entry.name = self.request.get('name'),
+      entry.version = self.request.get("version"),
+      entry.description = self.request.get("description"),
+      entry.url = self.request.get("url"),
+      entry.author = self.request.get("author"),
+      entry.packer = users.get_current_user(),
+      entry.requires = self.request.get("requires"),
+      entry.installer = self.request.get("installer"),
+      entry.installer_unix = self.request.get("installer_unix"),
+      entry.installer_win32 = self.request.get("installer_win32"),
+    else:
+      entry = Package(
+        name=self.request.get('name'),
+        version=self.request.get("version"),
+        description=self.request.get("description"),
+        url=self.request.get("url"),
+        author=self.request.get("author"),
+        packer=users.get_current_user(),
+        requires=self.request.get("requires"),
+        installer=self.request.get("installer"),
+        installer_unix=self.request.get("installer_unix"),
+        installer_win32=self.request.get("installer_win32"),
+      )
+    entry.put()
+    self.redirect("/edit/%s" % (entry.key()))
 
 class SearchPage(webapp.RequestHandler):
   def get(self):
@@ -167,19 +196,58 @@ class MainPage(webapp.RequestHandler):
       greeting = ("<a href=\"%s\">Sign in or sign up</a>" % users.create_login_url(""))
     self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'main.html'), { "greeting": greeting }))
 
+#class SyncPkg(webapp.RequestHandler):
+#  def get(self):
+#    config = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), 'plagger-config.yaml'), 'r'))
+#    try:
+#      content = urlfetch.fetch('http://www.vim.org/scripts/script_search_results.php?order_by=creation_date&direction=descending').content
+#      parser = xmlbuilder.TreeBuilder()
+#      xmllib.XMLParser.__init__(parser, accept_utf8=1)
+#      parser.feed(content)
+#      dom = parser.close()
+#      entries = dom.findall('item')
+#      count = 0
+#      for entry in entries:
+#        name = entry.find("title").contents[0].split(" - ")[0]
+#        description = entry.find("title").contents[0].split(" - ")[1].encode("utf-8", "")
+#        url = entry.find('link').text
+#        if Package.gql('WHERE name=:name and version=:version', name=name, version=version).get(): continue
+#        logging.info('posting:' + url)
+#        description = entry.find('{http://purl.org/rss/1.0/}title').text or ''
+#        extended = entry.find('{http://purl.org/rss/1.0/}description').text or ''
+#        tags = ' '.join([x.text for x in entry.findall('{http://purl.org/dc/elements/1.1/}subject')]) or ''
+#        uri = 'https://api.del.icio.us/v1/posts/add?' + urllib.urlencode({ 'url' : url, 'description' : description, 'extended' : extended, 'tags' : tags })
+#        try:
+#          auth = base64.b64encode('%s:%s' % (config['delicious_user'], config['delicious_pass'])).strip("\n")
+#          res = urlfetch.fetch(uri, headers={ 'Authorization' : 'Basic %s' % auth }).status_code
+#          Bookmark(url = url.decode('utf-8'), description = description.replace("\n", '').decode('utf-8'), extended = extended.decode('utf-8'), tags = tags.decode('utf-8')).put()
+#          logging.info('posted:' + url)
+#        except Exception, e:
+#          logging.error(e)
+#          logging.info('failed:' + url)
+#          pass
+#        count = count + 1
+#        if count > 5: break
+#      self.response.out.write('done')
+#    except:
+#      self.response.out.write('failed')
+
 def main():
   application = webapp.WSGIApplication([
     ('/',               MainPage),
     ('/edit/(.*)',      EditPage),
+    ('/new',            NewPage),
     ('/search',         SearchPage),
     ('/api/list',       ListPkg),
     ('/api/search',     SearchPkg),
     ('/api/count',      CountPkg),
+    #('/api/fixup',      FixupPkg),
     #('/api/add',       AddPkg),
     #('/api/update',    UpdatePkg),
     #('/api/delete',    DeletePkg),
     ('/api/entry/byname/(.*)', ByNamePkg),
     ('/api/entry/(.*)', EntryPkg),
+    #('/tasks/sync',     SyncPkg),
   ], debug=False)
   wsgiref.handlers.CGIHandler().run(application)
 

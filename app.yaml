@@ -4,6 +4,9 @@ runtime: python
 api_version: 1
 
 handlers:
+  - url: /tasks/sync
+    script: vimjolts.py
+
   - url: /favicon.ico
     static_files: static/image/favicon.ico
     upload: static/image/favicon.ico
