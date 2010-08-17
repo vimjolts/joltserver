@@ -49,9 +49,6 @@ def get_all_packages(fields):
             pkg[field] = val.encode("utf-8", "").decode("utf-8")
       pkgs.append(pkg)
       count += 1
-      if maxsize != -1 and len(pkgs) > maxsize:
-        exist = False
-        break
     if exist == False:
       break
     offset += count
