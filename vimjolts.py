@@ -89,6 +89,7 @@ class EntryPkg(webapp.RequestHandler):
       if key != 'id':
         setattr(entry, key, info[key])
     entry.put()
+    memcache.delete("packages")
     self.redirect("/api/entry/%s" % (entry.key()))
 
 class SearchPkg(webapp.RequestHandler):
@@ -105,6 +106,7 @@ class TruncatePkg(webapp.RequestHandler):
   def get(self):
     for pkg in Package.all():
       pkg.delete()
+    memcache.delete("packages")
     self.response.out.write("ok")
 
 class ListPkg(webapp.RequestHandler):
@@ -186,6 +188,7 @@ class EditPage(webapp.RequestHandler):
         installer_win32=self.request.get("installer_win32"),
       )
     entry.put()
+    memcache.delete("packages")
     self.redirect("/edit/%s" % (entry.key()))
 
 class SearchPage(webapp.RequestHandler):
