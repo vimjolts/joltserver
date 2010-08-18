@@ -40,10 +40,8 @@
 				<option value="dict"{% ifequal pkg.installer "dict" %} selected="selected"{% endifequal %}>copy a file as dict</option>
 				<option value="custom"{% ifequal pkg.installer "custom" %} selected="selected"{% endifequal %}>custom script</option>
 			</select><br />
-			<label>UNIX:</label><br />
-			<textarea id="installer_unix" name="installer_unix" class="installer">{{ pkg.installer_unix|escape }}</textarea><br />
-			<label>Win32:</label><br />
-			<textarea id="installer_win32" name="installer_win32" class="installer">{{ pkg.installer_win32|escape }}</textarea><br />
+			<label for="installer_script">Custom Installer:</label><br />
+			<textarea id="installer_script" name="installer_script" class="installer">{{ pkg.installer_script|escape }}</textarea><br />
 		</div>
 		<input type="submit" value="Update" />
 		</form>

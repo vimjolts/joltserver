@@ -22,8 +22,7 @@ class Package(db.Model):
   requires = db.StringProperty(multiline=True)
   extractor = db.StringProperty()
   installer = db.StringProperty()
-  installer_unix = db.StringProperty(multiline=True)
-  installer_win32 = db.StringProperty(multiline=True)
+  installer_script = db.StringProperty(multiline=True)
   timestamp = db.DateProperty(required=True, auto_now=True)
 
 def get_all_packages(fields):
@@ -70,7 +69,7 @@ class EntryPkg(webapp.RequestHandler):
       self.error(404)
       return
     pkg = {}
-    for key in ['name', 'version', 'url', 'description', 'author', 'requires', 'extractor', 'installer', 'installer_unix', 'installer_win32']:
+    for key in ['name', 'version', 'url', 'description', 'author', 'requires', 'extractor', 'installer', 'installer_script']:
       pkg[key] = getattr(entry, key).encode("utf-8", "").decode("utf-8")
     pkg["packer"] = str(entry.packer)
     pkg["id"] = str(entry.key())
@@ -137,7 +136,7 @@ class EditPage(webapp.RequestHandler):
       self.error(404)
       return
     pkg = {}
-    for field in ['name', 'version', 'url', 'description', 'author', 'requires', 'extractor', 'installer', 'installer_unix', 'installer_win32']:
+    for field in ['name', 'version', 'url', 'description', 'author', 'requires', 'extractor', 'installer', 'installer_script']:
       val = getattr(entry, field)
       if not val:
         pkg[field] = ""
@@ -171,8 +170,7 @@ class EditPage(webapp.RequestHandler):
       entry.packer = users.get_current_user(),
       entry.requires = self.request.get("requires"),
       entry.installer = self.request.get("installer"),
-      entry.installer_unix = self.request.get("installer_unix"),
-      entry.installer_win32 = self.request.get("installer_win32"),
+      entry.installer_script = self.request.get("installer_script"),
     else:
       entry = Package(
         name=self.request.get('name'),
@@ -184,8 +182,7 @@ class EditPage(webapp.RequestHandler):
         packer=users.get_current_user(),
         requires=self.request.get("requires"),
         installer=self.request.get("installer"),
-        installer_unix=self.request.get("installer_unix"),
-        installer_win32=self.request.get("installer_win32"),
+        installer_script=self.request.get("installer_script"),
       )
     entry.put()
     memcache.delete("packages")
