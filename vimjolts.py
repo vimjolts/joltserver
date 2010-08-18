@@ -124,9 +124,9 @@ class NewPage(webapp.RequestHandler):
   def get(self):
     user = users.get_current_user()
     if user:
-      greeting = ("Welcome, %s! (<a href=\"%s\">sign out</a>)" % (user.nickname(), users.create_logout_url("")))
+      greeting = ("Welcome, {nick}! (<a href=\"{url}\">sign out</a>)".format(nick=user.nickname(), url=users.create_logout_url("")))
     else:
-      greeting = ("<a href=\"%s\">Sign in or sign up</a>" % users.create_login_url(""))
+      greeting = ("<a href=\"{url}\">Sign in or sign up</a>".format(url=users.create_login_url("")))
     self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'edit.html'), { "pkg": {}, "greeting": greeting }))
 
 class EditPage(webapp.RequestHandler):
@@ -147,9 +147,9 @@ class EditPage(webapp.RequestHandler):
 
     user = users.get_current_user()
     if user:
-      greeting = ("Welcome, %s! (<a href=\"%s\">sign out</a>)" % (user.nickname(), users.create_logout_url("")))
+      greeting = ("Welcome, {nick}! (<a href=\"{url}\">sign out</a>)".format(nick=user.nickname(), url=users.create_logout_url()))
     else:
-      greeting = ("<a href=\"%s\">Sign in or sign up</a>" % users.create_login_url(""))
+      greeting = ("<a href=\"{url}\">Sign in or sign up</a>".format(users.create_login_url("")))
     self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'edit.html'), { "pkg": pkg, "greeting": greeting }))
 
   def post(self, id):
@@ -192,18 +192,18 @@ class SearchPage(webapp.RequestHandler):
   def get(self):
     user = users.get_current_user()
     if user:
-      greeting = ("Welcome, %s! (<a href=\"%s\">sign out</a>)" % (user.nickname(), users.create_logout_url("")))
+      greeting = ("Welcome, {nick}! (<a href=\"{url}\">sign out</a>)".format(nick=user.nickname(), url=users.create_logout_url("")))
     else:
-      greeting = ("<a href=\"%s\">Sign in or sign up</a>" % users.create_login_url(""))
+      greeting = ("<a href=\"{url}\">Sign in or sign up</a>".format(url=users.create_login_url("")))
     self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'search.html'), { "greeting": greeting }))
 
 class MainPage(webapp.RequestHandler):
   def get(self):
     user = users.get_current_user()
     if user:
-      greeting = ("Welcome, %s! (<a href=\"%s\">sign out</a>)" % (user.nickname(), users.create_logout_url("")))
+      greeting = ("Welcome, {nick}! (<a href=\"{url}\">sign out</a>)".format(nick=user.nickname(), url=users.create_logout_url("")))
     else:
-      greeting = ("<a href=\"%s\">Sign in or sign up</a>" % users.create_login_url(""))
+      greeting = ("<a href=\"{url}\">Sign in or sign up</a>".format(url=users.create_login_url("")))
     self.response.out.write(template.render(os.path.join(os.path.dirname(__file__), 'main.html'), { "greeting": greeting }))
 
 #class SyncPkg(webapp.RequestHandler):
