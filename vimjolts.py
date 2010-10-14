@@ -264,4 +264,4 @@ def main():
 if __name__ == '__main__':
   main()
 
-# vim:set et ts=2 sw=2:
+# vim:set et ts=4 sw=4 sts=4 :
