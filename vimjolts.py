@@ -70,7 +70,8 @@ class EntryPkg(webapp.RequestHandler):
             return
         pkg = {}
         for key in ['name', 'version', 'url', 'description', 'author', 'requires', 'extractor', 'installer', 'installer_script']:
-            pkg[key] = getattr(entry, key).encode("utf-8", "").decode("utf-8")
+            if getattr(entry, key, None):
+                pkg[key] = getattr(entry, key).encode("utf-8", "").decode("utf-8")
         pkg["packer"] = str(entry.packer)
         pkg["id"] = str(entry.key())
         self.response.out.write(simplejson.dumps(pkg))
